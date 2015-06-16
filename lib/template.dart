@@ -1,16 +1,16 @@
 part of easydr;
 
-class Template {
+class EDTemplate {
   List<String> blocks = [];
-  Map<Int, String> mapping = {};
+  Map<int, String> mapping = {};
 
-  Template(String location) {
+  EDTemplate(String location) {
     File file = new File(location);
     String content = file.readAsStringSync();
     _build(content);
   }
 
-  Template.fromString(String content) {
+  EDTemplate.fromString(String content) {
     _build(content);
   }
 
@@ -18,10 +18,10 @@ class Template {
     String parsed = '';
     for(String s in blocks) {
       if (mapping.containsKey(blocks.indexOf(s))) {
-        if (!data.containsKey(mapping[blocks.indexOf(s)])) {
+       /* if (!data.containsKey(mapping[blocks.indexOf(s)])) {
           throw new Exception('No value provided for ' + mapping[blocks.indexOf(s)]);
-        }
-        parsed += data[mapping[blocks.indexOf(s)]].toString();
+        }*/
+        parsed += mapping[blocks.indexOf(s)].parse(data);
       } else {
 
 
@@ -42,7 +42,7 @@ class Template {
       cursor = content.indexOf('%}', tVarIdx)+1;
       var key = content.substring(tVarIdx+2, cursor-1).replaceAll(' ', '');
       blocks.add('{%' + key + '%}');
-      mapping[blocks.length -1] = key;
+      mapping[blocks.length -1] = new _EDExpression(key);
       _build(content.substring(cursor+1));
     }
   }
