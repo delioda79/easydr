@@ -12,7 +12,7 @@ class _EDVariable implements _EDExpressionType{
     } else {
       key = name;
     }
-    print(data);
+
     if (!data.containsKey(key)) {
       throw 'Variable ' + name + ' has not be provided';
     }
@@ -56,11 +56,11 @@ class _EDVariable implements _EDExpressionType{
     }
 
     int cursor = value.indexOf(']')+1;
-    if (value[cursor] == '.') {
+    /*if (value[cursor] == '.') {
       cursor++;
-    }
-    _EDVariable subKey = new _EDVariable(value.substring(cursor));
-    return subKey.parse(data[idx]);
+    }*/
+    _EDVariable subKey = new _EDVariable('automatic' + value.substring(cursor));
+    return subKey.parse({'automatic': data[idx]});
   }
 
 }
