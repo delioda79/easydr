@@ -18,12 +18,8 @@ class _EDExpression {
       expression = new _EDVariable(keys[0]);
     } else {
       if (keys[0] == 'for' && keys[2] == 'in') {
-        int end = body.lastIndexOf(new RegExp(r'{%\s*endfor\s*%}'));
-        if (end < 0) {
-          throw new Exception('No end of Loop');
-        }
-        cursor = end + body.substring(end).indexOf('}') + 1;
-        expression = new _EDLoop(keys[1], keys[3], body.substring(0, end ));
+        expression = new _EDLoop(keys[1], keys[3], body);
+        cursor = expression.cursor;
       }
     }
   }
