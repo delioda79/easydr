@@ -38,27 +38,31 @@ class EDTemplate {
 
     int tVarIdx = content.indexOf('{%', cursor);
 
-    int endbLock = content.indexOf(new RegExp(r'{%\s*end'));
+    int endBlock = content.indexOf(new RegExp(r'{%\s*end'));
 
     blocks.add(content.substring(cursor, (tVarIdx >= 0) ? tVarIdx : content.length));
 
     /**
      * The expression is an end of block, but no start of block exists
      */
-    if (endbLock == tVarIdx && tVarIdx >= 0) {
-      lastItemPosition = endbLock;
-      throw new EndBlockException(content.substring(tVarIdx, content.indexOf(new RegExp(r'%\s*}'))), lastItemPosition);
+    if (endBlock == tVarIdx && tVarIdx >= 0) {
+      throw new EndBlockException(content.substring(tVarIdx, content.indexOf(new RegExp(r'%\s*}'))), endBlock);
     }
 
     if (tVarIdx < content.length && tVarIdx >= 0) {
       cursor = content.indexOf('%}', tVarIdx)+1;
       var key = content.substring(tVarIdx+2, cursor-1);
       blocks.add('{%' + key + '%}');
-      mapping[blocks.length -1] = new _EDExpression(key, content.substring(cursor+1));
+
+      _EDExpression currentBlock = new _EDExpression(key, content.substring(cursor+1));
+
+      int currentBlockIdx = blocks.length -1;
+      mapping[blocks.length -1] = currentBlock;
       try {
         _build(content.substring(cursor + mapping[blocks.length -1].getCursor()));
       } on EndBlockException catch(e) {
-        throw new EndBlockException(e.getText(), e.getCursor() + cursor);
+        int localCursor = e.getCursor() + cursor + mapping[currentBlockIdx].getCursor();
+        throw new EndBlockException(e.getText(), localCursor);
       }
     }
   }

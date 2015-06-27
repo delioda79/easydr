@@ -5,11 +5,13 @@
     <title></title>
 </head>
 <body>
-    {% myVar %}
     {%    for  test1  in   tests   %}
         <p>{% test1 %}</p>
+        {% for test2 in tests %}
+            <p>{% test2 %}</p>
+        {% endfor %}
     {%       endfor       %}
-
+    {% myVar %}
     {% myVar2.a %}
     {% myVar2 %}
     {% myVar3[1] %}
@@ -17,5 +19,9 @@
     {% myVar2.b.c %}
     {% myVar4[2][0] %}
     {% myVar4[2] %}
+
+    {% for test2 in tests %}
+    <p>{% test2 %}</p>
+    {% endfor %}
 </body>
 </html>
