@@ -3,29 +3,26 @@ part of easydr;
 class _EDLoop implements _EDExpressionType {
   String key;
   String setKey;
-  EDTemplate template;
+  EDTemplateBlock template;
   int cursor;
 
   _EDLoop(String key, String setKey, String body) {
     this.key = key;
     this.setKey = setKey;
     cursor = 0;
-    try {
-      this.template = new EDTemplate.fromString(body);
-      cursor = this.template.getLatItemPosition();
-    } on EndBlockException catch (e) {
-
-      cursor = e.getCursor();
-      this.template = new EDTemplate.fromString(body.substring(0, cursor));
-    } finally {
-
-      int end = body.substring(cursor).indexOf(new RegExp(r'{%\s*endfor\s*%}')) + cursor;
-      if (end < 0) {
-        throw 'No end of Loop';
-      }
-
-      cursor = end + body.substring(end).indexOf('}') + 1;
+    this.template = new EDTemplateBlock.fromString(body);
+    cursor = this.template.getLatItemPosition();
+    if (cursor < body.length) {
+      this.template = new EDTemplateBlock.fromString(body.substring(0, cursor));
     }
+
+    int end = body.substring(cursor).indexOf(new RegExp(r'{%\s*endfor\s*%}')) + cursor;
+    if (end < 0) {
+      throw 'No end of Loop';
+    }
+
+    cursor = end + body.substring(end).indexOf('}') + 1;
+
   }
 
   String parse(Map data) {

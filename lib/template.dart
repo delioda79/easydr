@@ -1,17 +1,17 @@
 part of easydr;
 
-class EDTemplate {
+class EDTemplateBlock {
   int lastItemPosition = 0;
   List<String> blocks = [];
   Map<int, String> mapping = {};
 
-  EDTemplate(String location) {
+  EDTemplateBlock(String location) {
     File file = new File(location);
     String content = file.readAsStringSync();
     _build(content);
   }
 
-  EDTemplate.fromString(String content) {
+  EDTemplateBlock.fromString(String content) {
     lastItemPosition = content.length -1;
     _build(content);
   }
@@ -46,7 +46,9 @@ class EDTemplate {
      * The expression is an end of block, but no start of block exists
      */
     if (endBlock == tVarIdx && tVarIdx >= 0) {
-      throw new EndBlockException(content.substring(tVarIdx, content.indexOf(new RegExp(r'%\s*}'))), endBlock);
+      lastItemPosition =  endBlock;
+      return;
+      //throw new EndBlockException(content.substring(tVarIdx, content.indexOf(new RegExp(r'%\s*}'))), endBlock);
     }
 
     if (tVarIdx < content.length && tVarIdx >= 0) {
@@ -58,12 +60,8 @@ class EDTemplate {
 
       int currentBlockIdx = blocks.length -1;
       mapping[blocks.length -1] = currentBlock;
-      try {
-        _build(content.substring(cursor + mapping[blocks.length -1].getCursor()));
-      } on EndBlockException catch(e) {
-        int localCursor = e.getCursor() + cursor + mapping[currentBlockIdx].getCursor();
-        throw new EndBlockException(e.getText(), localCursor);
-      }
+        _build(content.substring(cursor + currentBlock.getCursor()));
+        lastItemPosition += cursor + currentBlock.getCursor();
     }
   }
 
