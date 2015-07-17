@@ -17,7 +17,7 @@ class _EDLoop implements _EDExpressionType {
     }
 
     int end = body.substring(cursor).indexOf(new RegExp(r'{%\s*endfor\s*%}')) + cursor;
-    if (end < 0) {
+    if (end != cursor) {
       throw 'No end of Loop';
     }
 
