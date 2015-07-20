@@ -8,7 +8,8 @@ class _EDExpression {
   _EDExpressionType expression;
 
   _EDExpression(String expr, String body) {
-    RegExp pattern =  new RegExp(r'"[^"]+"|[^\s]+');
+    //RegExp pattern =  new RegExp(r'"[^"]+"|[^\s]+');
+    RegExp pattern =  new RegExp('\'[^\']+\'|"[^"]+"|[^\\s]+');
     exprPts = pattern.allMatches(expr.trim()).fold([], (prev, element) {
       prev.add(element.group(0));
       return prev;
