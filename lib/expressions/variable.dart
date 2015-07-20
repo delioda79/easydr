@@ -23,6 +23,10 @@ class _EDVariable implements _EDExpressionType{
       return key.toString();
     }
 
+    if (key[0] == '"' && key[key.length-1] == '"') {
+      return key.substring(1, key.length-2).toString();
+    }
+
     if (!data.containsKey(key)) {
       throw 'Variable ' + name + ' has not be provided';
     }
