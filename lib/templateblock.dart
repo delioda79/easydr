@@ -25,8 +25,6 @@ class EDTemplateBlock {
       if (mapping.containsKey(blocks.indexOf(s))) {
         parsed += mapping[blocks.indexOf(s)].parse(data);
       } else {
-
-
         parsed += blocks[blocks.indexOf(s)];
       }
     }
@@ -51,7 +49,6 @@ class EDTemplateBlock {
     if (endBlock == tVarIdx && tVarIdx >= 0) {
       _lastItemPosition =  endBlock;
       return;
-      //throw new EndBlockException(content.substring(tVarIdx, content.indexOf(new RegExp(r'%\s*}'))), endBlock);
     }
 
     if (tVarIdx < content.length && tVarIdx >= 0) {

@@ -8,6 +8,7 @@ main() async {
     'tests': ['a', 'b', 'c'],
     'myVar2': {'a' : 5, 'b': {'c': 'subObject'}},
     'myVar3': ['x','z', 'y'],
-    'myVar4': ['x',{'b' : 'test'}, ['subA', 'subB']]
+    'myVar4': ['x',{'b' : 'test'}, ['subA', 'subB']],
+    'myVar5':  5
   }));
 }

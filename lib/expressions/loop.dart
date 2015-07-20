@@ -6,9 +6,10 @@ class _EDLoop implements _EDExpressionType {
   EDTemplateBlock template;
   int cursor;
 
-  _EDLoop(String key, String setKey, String body) {
-    this.key = key;
-    this.setKey = setKey;
+  _EDLoop(List expr, String body) {
+
+    this.key = expr[1];
+    this.setKey = expr[3];
     cursor = 0;
     this.template = new EDTemplateBlock.fromString(body);
     cursor = this.template.getLatItemPosition();
@@ -23,6 +24,10 @@ class _EDLoop implements _EDExpressionType {
 
     cursor = end + body.substring(end).indexOf('}') + 1;
 
+  }
+
+  static bool check(List expr) {
+    return expr[0] == 'for' && expr[2] == 'in';
   }
 
   String parse(Map data) {

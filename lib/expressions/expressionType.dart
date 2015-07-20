@@ -1,5 +1,6 @@
 part of easydr;
 
-class _EDExpressionType {
-  String parse() {}
+abstract class _EDExpressionType {
+  String parse();
+  int getCursor();
 }

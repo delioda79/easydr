@@ -2,7 +2,13 @@ part of easydr;
 
 class _EDVariable implements _EDExpressionType{
   String name;
-  _EDVariable(this.name);
+  _EDVariable(List expr, String body) {
+    name = expr[0];
+  }
+
+  static bool check(List expr) {
+    return expr.length == 1;
+  }
 
   String parse(Map data) {
     String key;
@@ -13,9 +19,15 @@ class _EDVariable implements _EDExpressionType{
       key = name;
     }
 
+    if (double.parse(key, (e) => null) != null) {
+      return key.toString();
+    }
+
     if (!data.containsKey(key)) {
       throw 'Variable ' + name + ' has not be provided';
     }
+
+
     if (keyLength >= 0) {
       if (data[key] is Map) {
         return _getFromMap(name.substring(keyLength), data[key]);
@@ -32,7 +44,8 @@ class _EDVariable implements _EDExpressionType{
     if (value[0] != '.') {
       throw 'Expected an object property';
     }
-    _EDVariable subKey = new _EDVariable(value.substring(1));
+
+    _EDVariable subKey = new _EDVariable([value.substring(1)], '');
     return subKey.parse(data);
   }
 
@@ -59,8 +72,12 @@ class _EDVariable implements _EDExpressionType{
     /*if (value[cursor] == '.') {
       cursor++;
     }*/
-    _EDVariable subKey = new _EDVariable('automatic' + value.substring(cursor));
+    _EDVariable subKey = new _EDVariable(['automatic' + value.substring(cursor)], '');
     return subKey.parse({'automatic': data[idx]});
+  }
+
+  int getCursor() {
+    return 0;
   }
 
 }

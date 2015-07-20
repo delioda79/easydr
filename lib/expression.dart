@@ -1,26 +1,39 @@
 part of easydr;
 
 class _EDExpression {
-  String trimmed;
+  List exprPts;
   int cursor;
+  List expressions = [_EDVariable, _EDLoop, _EDConditional];
 
   _EDExpressionType expression;
 
   _EDExpression(String expr, String body) {
-    trimmed = expr.trim().replaceAll(new RegExp(r'\s+'), ' ');
+    RegExp pattern =  new RegExp(r'"[^"]+"|[^\s]+');
+    exprPts = pattern.allMatches(expr.trim()).fold([], (prev, element) {
+      prev.add(element.group(0));
+      return prev;
+    });
+
     cursor = 0;
     _build(body);
   }
 
   void _build(String body) {
-    String keys = trimmed.split(' ');
-    if (keys.length == 1) {
-      expression = new _EDVariable(keys[0]);
-    } else {
-      if (keys[0] == 'for' && keys[2] == 'in') {
-        expression = new _EDLoop(keys[1], keys[3], body);
-        cursor = expression.cursor;
+
+    Iterator i = expressions.iterator;
+    bool found = false;
+    while (i.moveNext()) {
+      var reflected = reflectClass(i.current);
+      if (reflected.invoke(#check, [exprPts]).reflectee ) {
+        expression = reflected.newInstance(new Symbol(''),[exprPts, body]).reflectee;
+        cursor = expression.getCursor();
+        found = true;
+        break;
       }
+    }
+
+    if (!found) {
+      //print(trimmed);
     }
   }
 
