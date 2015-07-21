@@ -1,4 +1,4 @@
-part of easydr;
+part of easydr.template;
 
 class EDTemplate {
   EDTemplateBlock _block;

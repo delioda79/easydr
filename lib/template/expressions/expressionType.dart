@@ -1,4 +1,4 @@
-part of easydr;
+part of easydr.template;
 
 abstract class _EDExpressionType {
   String parse();

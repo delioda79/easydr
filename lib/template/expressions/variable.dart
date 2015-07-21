@@ -1,4 +1,4 @@
-part of easydr;
+part of easydr.template;
 
 class _EDVariable implements _EDExpressionType{
   String name;
