@@ -1,1 +1,3 @@
 name: easydr
+dependencies:
+  http_server: "^0.9.5+1"
