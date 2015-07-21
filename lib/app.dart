@@ -1,16 +1,33 @@
 part of easydr;
 
-class App {
+class EDApp {
+  int _port;
+  EDDI _di;
+
+  EDApp([int port = 4046]) {
+    this._port = port;
+    _di = new EDDI();
+
+    _di.createBucket('templates');
+    _di.createBucket('controllers');
+    _di.createBucket('models');
+  }
+
+  void getDI() {
+    return _di;
+  }
+
+  void addTemplate(String key, EDTemplate template) {
+    _di.add('templates', key, template);
+  }
+
   void start() async {
 
-    var myTemplate = new EDTemplate('./TestTemplate.html');
-
-    var serverRequests = await HttpServer.bind(InternetAddress.LOOPBACK_IP_V4, 4046);
+    var serverRequests = await HttpServer.bind(InternetAddress.LOOPBACK_IP_V4, this._port);
     await for (var request in serverRequests) {
       request.response.headers.contentType = 'text/html';
       request.response
-        ..write('Your request: ')
-        ..write(myTemplate.parse({
+        ..write(_di.getBucket('templates')['first'].parse({
           'myVar': 1,
           'tests': ['a', 'b', 'c'],
           'myVar2': {'a' : 5, 'b': {'c': 'subObject'}},
