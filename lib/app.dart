@@ -66,8 +66,7 @@ class EDApp {
           arguments[new Symbol(key)] = match.getPattern().firstMatch(request.uri.toString()).group(value);
         });
 
-print(arguments);
-        Map data = controller.invoke(action['method'], [],  arguments);
+        Map data = controller.invoke(action['method'], match.getPositional(),  arguments);
         String result;
         if (action.containsKey('template')) {
           result = _di.getBucket('templates')['first'].parse(data.reflectee);
