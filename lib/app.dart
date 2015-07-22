@@ -27,10 +27,10 @@ class EDApp {
     controllerM.declarations.forEach((key, method) {
       var urlObj = {};
       method.metadata.forEach((annot) {
-        if(annot.type.reflectedType.toString() == 'EDURI') {
+        if(annot.type.reflectedType.toString() == 'EDRoute') {
           urlObj["controller"] = controllerKey;
           urlObj["method"] = key;
-          urls[annot.reflectee.toString()] = urlObj;
+          urls[annot.reflectee] = urlObj;
         }
 
         if(annot.type.reflectedType.toString() == 'EDSelectedTemplate') {
@@ -48,11 +48,12 @@ class EDApp {
     await for (var request in serverRequests) {
       request.response.headers.contentType = 'text/html';
 
-      String match = null;
-      for (var idx in urls.keys) {
-        var pattern = new RegExp(idx);
-        if (pattern.hasMatch(request.uri.toString())) {
-          match = idx;
+      EDRoute match = null;
+
+      for (var route in urls.keys) {
+        if (route.getPattern().hasMatch(request.uri.toString())) {
+          match = route;
+          break;
         }
       }
 
@@ -60,7 +61,13 @@ class EDApp {
         //Map action = urls[request.uri.toString()];
         Map action = urls[match];
         var controller = _di.getBucket('controllers')[action['controller']];
-        Map data = controller.invoke(action['method'], []);
+        Map arguments = {};
+        match.getNamed().forEach((key, value) {
+          arguments[new Symbol(key)] = match.getPattern().firstMatch(request.uri.toString()).group(value);
+        });
+
+print(arguments);
+        Map data = controller.invoke(action['method'], [],  arguments);
         String result;
         if (action.containsKey('template')) {
           result = _di.getBucket('templates')['first'].parse(data.reflectee);

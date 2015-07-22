@@ -5,6 +5,6 @@ export './template/lib.dart';
 import 'dart:mirrors';
 
 part 'dependency_injector.dart';
-part 'uri.dart';
+part 'route.dart';
 part 'selected_template.dart';
 part 'app.dart';
