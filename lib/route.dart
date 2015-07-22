@@ -10,7 +10,7 @@ class EDRoute {
     return new RegExp(this._pattern);
   }
 
-  Map<String, Int>  getPositional() {
+  List  getPositional() {
     return  this._positional;
   }
 

@@ -42,11 +42,11 @@ class EDApp {
     _di.getBucket('controllers');
   }
 
-  void start() async {
+  start() async {
 
     var serverRequests = await HttpServer.bind(InternetAddress.LOOPBACK_IP_V4, this._port);
     await for (var request in serverRequests) {
-      request.response.headers.contentType = 'text/html';
+      request.response.headers.contentType = ContentType.HTML;
 
       EDRoute match = null;
 
@@ -66,12 +66,12 @@ class EDApp {
           arguments[new Symbol(key)] = match.getPattern().firstMatch(request.uri.toString()).group(value);
         });
 
-        Map data = controller.invoke(action['method'], match.getPositional(),  arguments);
+        Map data = controller.invoke(action['method'], match.getPositional(),  arguments).reflectee;
         String result;
         if (action.containsKey('template')) {
-          result = _di.getBucket('templates')['first'].parse(data.reflectee);
+          result = _di.getBucket('templates')[action['template'].toString()].parse(data);
         } else {
-          result = data.reflectee.toString();
+          result = data.toString();
         }
         request.response..write(result)
         ..close();

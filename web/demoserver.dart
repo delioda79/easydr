@@ -3,8 +3,8 @@ import 'package:easydr/easydr.dart';
 class MyFirstController {
 
   @EDRoute(r'(/pippo/)([0-9]+)(/){0,1}$', const [] ,const {'id': 2})
-  @EDSelectedTemplate('first')
-  Map pippo({id: 0}) {
+  @EDSelectedTemplate('default')
+  Map pippo({String id: 0}) {
     return {
       'myVar': 1,
       'tests': ['a', 'b', 'c'],
@@ -26,8 +26,8 @@ main() async {
   var myTemplate = new EDTemplate('./TestTemplate.html');
 
   EDApp anApp = new EDApp();
-  anApp.addTemplate('first', myTemplate);
-  anApp.addController('first', MyFirstController);
+  anApp.addTemplate('default', myTemplate);
+  anApp.addController('TestController', MyFirstController);
 
   anApp.start();
 }
