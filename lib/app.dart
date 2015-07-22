@@ -3,6 +3,7 @@ part of easydr;
 class EDApp {
   int _port;
   EDDI _di;
+  Map urls = {};
 
   EDApp([int port = 4046]) {
     this._port = port;
@@ -13,7 +14,7 @@ class EDApp {
     _di.createBucket('models');
   }
 
-  void getDI() {
+  EDDI getDI() {
     return _di;
   }
 
@@ -21,21 +22,48 @@ class EDApp {
     _di.add('templates', key, template);
   }
 
+  void addController(String controllerKey, Object controllerClass) {
+    var controllerM = reflectClass(controllerClass);
+    controllerM.declarations.forEach((key, method) {
+      var urlObj = {};
+      method.metadata.forEach((annot) {
+        if(annot.type.reflectedType.toString() == 'EDURI') {
+          urlObj["controller"] = controllerKey;
+          urlObj["method"] = key;
+          urls[annot.reflectee.toString()] = urlObj;
+        }
+
+        if(annot.type.reflectedType.toString() == 'EDSelectedTemplate') {
+          urlObj["template"] = annot.reflectee;
+        }
+      });
+    });
+    _di.add('controllers', controllerKey, reflect(controllerM.newInstance(new Symbol(''),[]).reflectee));
+    _di.getBucket('controllers');
+  }
+
   void start() async {
 
     var serverRequests = await HttpServer.bind(InternetAddress.LOOPBACK_IP_V4, this._port);
     await for (var request in serverRequests) {
       request.response.headers.contentType = 'text/html';
-      request.response
-        ..write(_di.getBucket('templates')['first'].parse({
-          'myVar': 1,
-          'tests': ['a', 'b', 'c'],
-          'myVar2': {'a' : 5, 'b': {'c': 'subObject'}},
-          'myVar3': ['x','z', 'y'],
-          'myVar4': [request.uri,{'b' : 'test'}, ['subA', 'subB']],
-          'myVar5':  5
-        }))
+      if (urls.containsKey(request.uri.toString())) {
+        Map action = urls[request.uri.toString()];
+        var controller = _di.getBucket('controllers')[action['controller']];
+        Map data = controller.invoke(action['method'], []);
+        String result;
+        if (action.containsKey('template')) {
+          result = _di.getBucket('templates')['first'].parse(data.reflectee);
+        } else {
+          result = data.reflectee.toString();
+        }
+        request.response..write(result)
         ..close();
+      } else {
+        request.response
+          ..write('UNKNOWN')
+          ..close();
+      }
     }
   }
 }
