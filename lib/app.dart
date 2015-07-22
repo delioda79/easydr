@@ -47,8 +47,18 @@ class EDApp {
     var serverRequests = await HttpServer.bind(InternetAddress.LOOPBACK_IP_V4, this._port);
     await for (var request in serverRequests) {
       request.response.headers.contentType = 'text/html';
-      if (urls.containsKey(request.uri.toString())) {
-        Map action = urls[request.uri.toString()];
+
+      String match = null;
+      for (var idx in urls.keys) {
+        var pattern = new RegExp(idx);
+        if (pattern.hasMatch(request.uri.toString())) {
+          match = idx;
+        }
+      }
+
+      if (/*urls.containsKey(request.uri.toString())*/ match != null) {
+        //Map action = urls[request.uri.toString()];
+        Map action = urls[match];
         var controller = _di.getBucket('controllers')[action['controller']];
         Map data = controller.invoke(action['method'], []);
         String result;

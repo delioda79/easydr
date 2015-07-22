@@ -2,7 +2,7 @@ import 'package:easydr/easydr.dart';
 
 class MyFirstController {
 
-  @EDURI('/pippo')
+  @EDURI('/pippo(.*)')
   @EDSelectedTemplate('first')
   Map pippo() {
     return {
