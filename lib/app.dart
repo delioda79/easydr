@@ -27,24 +27,31 @@ class EDApp {
     controllerM.declarations.forEach((key, method) {
       var urlObj = {};
       method.metadata.forEach((annot) {
-        if(annot.type.reflectedType.toString() == 'EDRoute') {
+        if (annot.type.reflectedType.toString() == 'EDRoute') {
           urlObj["controller"] = controllerKey;
           urlObj["method"] = key;
           urls[annot.reflectee] = urlObj;
         }
 
-        if(annot.type.reflectedType.toString() == 'EDSelectedTemplate') {
+        if (annot.type.reflectedType.toString() == 'EDSelectedTemplate') {
+          urlObj["template"] = annot.reflectee;
+        }
+
+        if (annot.type.reflectedType.toString() == 'EDSelectedTemplatePath') {
+          var myTemplate = new EDTemplate(annot.reflectee.toString());
+          addTemplate(annot.reflectee.toString(), myTemplate);
           urlObj["template"] = annot.reflectee;
         }
       });
     });
-    _di.add('controllers', controllerKey, reflect(controllerM.newInstance(new Symbol(''),[]).reflectee));
+    _di.add('controllers', controllerKey,
+        reflect(controllerM.newInstance(new Symbol(''), []).reflectee));
     _di.getBucket('controllers');
   }
 
   start() async {
-
-    var serverRequests = await HttpServer.bind(InternetAddress.LOOPBACK_IP_V4, this._port);
+    var serverRequests =
+        await HttpServer.bind(InternetAddress.LOOPBACK_IP_V4, this._port);
     await for (var request in serverRequests) {
       request.response.headers.contentType = ContentType.HTML;
 
@@ -63,18 +70,24 @@ class EDApp {
         var controller = _di.getBucket('controllers')[action['controller']];
         Map arguments = {};
         match.getNamed().forEach((key, value) {
-          arguments[new Symbol(key)] = match.getPattern().firstMatch(request.uri.toString()).group(value);
+          arguments[new Symbol(key)] = match
+              .getPattern()
+              .firstMatch(request.uri.toString())
+              .group(value);
         });
 
-        Map data = controller.invoke(action['method'], match.getPositional(),  arguments).reflectee;
+        Map data = controller.invoke(
+            action['method'], match.getPositional(), arguments).reflectee;
         String result;
         if (action.containsKey('template')) {
-          result = _di.getBucket('templates')[action['template'].toString()].parse(data);
+          result = _di.getBucket('templates')[action['template'].toString()]
+              .parse(data);
         } else {
           result = data.toString();
         }
-        request.response..write(result)
-        ..close();
+        request.response
+          ..write(result)
+          ..close();
       } else {
         request.response
           ..write('UNKNOWN')
@@ -83,4 +96,3 @@ class EDApp {
     }
   }
 }
-
