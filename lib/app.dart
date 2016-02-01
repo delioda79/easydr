@@ -12,6 +12,7 @@ class EDApp {
     _di.createBucket('templates');
     _di.createBucket('controllers');
     _di.createBucket('models');
+    this.addController('Static', StaticController);
   }
 
   EDDI getDI() {
@@ -38,7 +39,7 @@ class EDApp {
         }
 
         if (annot.type.reflectedType.toString() == 'EDSelectedTemplatePath') {
-          var myTemplate = new EDTemplate(annot.reflectee.toString());
+          var myTemplate = new EDTemplate(dirname(Platform.script.toFilePath()) + '/' + annot.reflectee.toString());
           addTemplate(annot.reflectee.toString(), myTemplate);
           urlObj["template"] = annot.reflectee;
         }
@@ -47,6 +48,16 @@ class EDApp {
     _di.add('controllers', controllerKey,
         reflect(controllerM.newInstance(new Symbol(''), []).reflectee));
     _di.getBucket('controllers');
+  }
+
+  void addStatics(String name, String location) {
+    String pattern = '(/' + name + r'/)(.*)(/){0,1}$';
+    EDRoute route = new EDRoute(pattern, const [] ,const {'fileName': 2});
+    var urlObj = {};
+    urlObj["controller"] = 'Static';
+    urlObj["method"] = new Symbol('serveFiles');
+    urlObj["params"] = {"location": location};
+    urls[route] = urlObj;
   }
 
   start() async {
@@ -75,6 +86,12 @@ class EDApp {
               .firstMatch(request.uri.toString())
               .group(value);
         });
+
+        if (urls[match].containsKey('params')) {
+          urls[match]['params'].forEach((key, value) {
+            arguments[new Symbol(key)] = value;
+          });
+        }
 
         Map data = controller.invoke(
             action['method'], match.getPositional(), arguments).reflectee;
