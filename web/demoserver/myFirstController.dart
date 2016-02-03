@@ -4,6 +4,7 @@ class MyFirstController {
 
   @EDRoute(r'(/pippo/)([0-9]+)(/){0,1}$', const [] ,const {'id': 2})
   @EDSelectedTemplatePath('./demoserver/DemoServerFirstCtrlTemplate.html')
+  @EDGET()
   Map pippo({String id: 0}) {
     return {
       'myVar': 1,
@@ -16,12 +17,21 @@ class MyFirstController {
   }
 
   @EDRoute('/message1')
+  @EDGET()
   String myMessage() {
     return 'Hello, I\'m just returning a string';
   }
 
   @EDRoute('/message2')
+  @EDGET()
   @EDSelectedTemplatePath('./demoserver/plainMessage.html')
   String myTemplatedMessage() {
+  }
+
+  @EDRoute(r'(/pippo/)([0-9]+)(/){0,1}$', const [] ,const {'id': 2})
+  @EDPOST()
+  String testPost({String id: 0})
+  {
+    return 'POSTED';
   }
 }
