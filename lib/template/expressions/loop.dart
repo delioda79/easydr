@@ -1,4 +1,4 @@
-part of easydr;
+part of easydr.template;
 
 class _EDLoop implements _EDExpressionType {
   String key;

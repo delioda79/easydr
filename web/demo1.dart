@@ -1,4 +1,4 @@
-import 'package:easydr/easydr.dart';
+import 'package:easydr/template/lib.dart';
 
 main() async {
 

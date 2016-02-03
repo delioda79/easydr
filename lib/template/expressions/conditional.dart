@@ -1,4 +1,4 @@
-part of easydr;
+part of easydr.template;
 
 class _EDConditional implements _EDExpressionType {
   String key;
@@ -45,6 +45,7 @@ class _EDConditional implements _EDExpressionType {
 
     var compareKeyExpr = new _EDVariable([key], '');
     var compareKey = compareKeyExpr.parse(data);
+
     switch (compareOp) {
       case '=':
         displayIt = compareKey == compareValue;

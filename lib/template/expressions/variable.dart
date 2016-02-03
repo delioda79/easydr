@@ -1,4 +1,4 @@
-part of easydr;
+part of easydr.template;
 
 class _EDVariable implements _EDExpressionType{
   String name;
@@ -21,6 +21,10 @@ class _EDVariable implements _EDExpressionType{
 
     if (double.parse(key, (e) => null) != null) {
       return key.toString();
+    }
+
+    if (key[0] ==  key[key.length-1] && ['"', "'"].contains(key[0])) {
+      return key.substring(1, key.length-1).toString();
     }
 
     if (!data.containsKey(key)) {
