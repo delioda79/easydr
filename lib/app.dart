@@ -27,11 +27,14 @@ class EDApp {
     var controllerM = reflectClass(controllerClass);
     controllerM.declarations.forEach((key, method) {
       var urlObj = {};
+      urlObj["controller"] = controllerKey;
+      urlObj["method"] = key;
+      var regex = '';
       method.metadata.forEach((annot) {
         if (annot.type.reflectedType.toString() == 'EDRoute') {
-          urlObj["controller"] = controllerKey;
-          urlObj["method"] = key;
-          urls[annot.reflectee] = urlObj;
+          regex = annot.reflectee;
+          //@toDo manage multiple routes declaration
+          urls[regex] = {};
         }
 
         if (annot.type.reflectedType.toString() == 'EDSelectedTemplate') {
@@ -42,6 +45,22 @@ class EDApp {
           var myTemplate = new EDTemplate(dirname(Platform.script.toFilePath()) + '/' + annot.reflectee.toString());
           addTemplate(annot.reflectee.toString(), myTemplate);
           urlObj["template"] = annot.reflectee;
+        }
+
+        if (annot.type.reflectedType.toString() == 'EDGET') {
+          urls[regex]['GET'] = urlObj;
+        }
+
+        if (annot.type.reflectedType.toString() == 'EDPOST') {
+          urls[regex]['POST'] = urlObj;
+        }
+
+        if (annot.type.reflectedType.toString() == 'EDPUT') {
+          urls[regex]['PUT'] = urlObj;
+        }
+
+        if (annot.type.reflectedType.toString() == 'EDDELETE') {
+          urls[regex]['DELETE'] = urlObj;
         }
       });
     });
@@ -57,7 +76,9 @@ class EDApp {
     urlObj["controller"] = 'Static';
     urlObj["method"] = new Symbol('serveFiles');
     urlObj["params"] = {"location": location};
-    urls[route] = urlObj;
+    urls[route] = {
+      'GET': urlObj
+    };
   }
 
   start() async {
@@ -65,19 +86,27 @@ class EDApp {
         await HttpServer.bind(InternetAddress.LOOPBACK_IP_V4, this._port);
     await for (var request in serverRequests) {
       request.response.headers.contentType = ContentType.HTML;
+      var data = await request.toSet();
+
+      data.forEach((val) {
+        String toPrint = new String.fromCharCodes(val);
+        print(toPrint);
+      });
 
       EDRoute match = null;
 
       for (var route in urls.keys) {
         if (route.getPattern().hasMatch(request.uri.toString())) {
-          match = route;
+          if (urls[route].containsKey(request.method)) {
+            match = route;
+          }
           break;
         }
       }
 
       if (/*urls.containsKey(request.uri.toString())*/ match != null) {
         //Map action = urls[request.uri.toString()];
-        Map action = urls[match];
+        Map action = urls[match][request.method];
         var controller = _di.getBucket('controllers')[action['controller']];
         Map arguments = {};
         match.getNamed().forEach((key, value) {
@@ -87,8 +116,8 @@ class EDApp {
               .group(value);
         });
 
-        if (urls[match].containsKey('params')) {
-          urls[match]['params'].forEach((key, value) {
+        if (action.containsKey('params')) {
+          action['params'].forEach((key, value) {
             arguments[new Symbol(key)] = value;
           });
         }
