@@ -33,8 +33,10 @@ class EDApp {
       method.metadata.forEach((annot) {
         if (annot.type.reflectedType.toString() == 'EDRoute') {
           regex = annot.reflectee;
-          //@toDo manage multiple routes declaration
-          urls[regex] = {};
+          //@toDo seems able to handle multiple routes declaration
+          if (!urls.containsKey(regex)) {
+            urls[regex] = {};
+          }
         }
 
         if (annot.type.reflectedType.toString() == 'EDSelectedTemplate') {

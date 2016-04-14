@@ -29,6 +29,7 @@ class MyFirstController {
   }
 
   @EDRoute(r'(/pippo/)([0-9]+)(/){0,1}$', const [] ,const {'id': 2})
+  @EDSelectedTemplatePath('./demoserver/DemoServerFirstCtrlTemplate.html')
   @EDPOST()
   String testPost({String id: 0})
   {
